@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mobile Recharge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Verify Mobile</h2>
+
+        <!-- STEP 1: MOBILE ONLY -->
+        <div id="mobileStep">
+            <label>Mobile Number <span class="required">*</span></label>
+            <input
+                    type="text"
+                    id="profileMobile"
+                    placeholder="Enter Mobile Number With Country Code"
+                    required
+            />
+        </div>
+
+        <!-- STEP 2: PROFILE DETAILS -->
+        <div id="profileStep" style="display:none;">
+            <label>First Name <span class="required">*</span></label>
+            <input type="text" id="firstName" placeholder="First Name" />
+
+            <label>Last Name <span class="required">*</span></label>
+            <input type="text" id="lastName" placeholder="Last Name" />
+
+            <label>Email <span class="required">*</span></label>
+            <input type="email" id="email" placeholder="Email" />
+        </div>
+
+        <p id="profileError" class="error-message"></p>
+
+        <button id="continueBtn" type="button">Continue</button>
+        <button id="createProfileBtn" type="button" style="display:none;">
+            Create Profile
+        </button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+
+<div class="container">
+    <h2>Mobile Recharge Application</h2>
+
+    <label>Mobile Number</label>
+    <input type="text" id="mobileNumber" placeholder="+353871234567">
+    <small id="mobileError" class="error"></small>
+
+    <label>Amount (€)</label>
+    <input type="text" id="amount" placeholder="10 - 100">
+    <small id="amountError" class="error"></small>
+
+    <!-- SAME BUTTON ID -->
+    <button id="initiateBtn" disabled>Pay</button>
+
+    <button id="invoiceBtn" disabled>Download Invoice</button>
+
+    <div class="status" id="statusBox">
+        <p id="message"></p>
+    </div>
+</div>
+
+<!-- LOAD app.js FIRST -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- PAY BUTTON LOGIC (USES VARIABLES FROM app.js) -->
+<script>
+    const invoiceBtn = document.getElementById("invoiceBtn");
+    let lastPaymentId = null;
+
+    const API_BASE_URL =
+        "https://3nsivye9u5.execute-api.us-east-1.amazonaws.com/prod";
+
+    initiateBtn.addEventListener("click", async () => {
+        statusBox.classList.add("show");
+        message.innerText = "Processing payment...";
+        initiateBtn.disabled = true;
+
+        const payload = {
+            mobileNumber: mobileInput.value,
+            amount: parseInt(amountInput.value)
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/payments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Payment failed");
+            }
+
+            const data = await response.json();
+
+            message.innerText =
+                "Payment successful. Payment ID: " +
+                data.paymentId +
+                " Status: " +
+                data.status;
+
+                if (data.status === "SUCCEEDED") {
+                lastPaymentId = data.paymentId;
+                invoiceBtn.disabled = false;
+            }
+
+        } catch (error) {
+            message.innerText =
+                "Unable to process payment. Please try again.";
+            initiateBtn.disabled = false;
+        }
+    });
+
+
+    invoiceBtn.addEventListener("click", async () => {
+    message.innerText = "Generating invoice...";
+
+        try {
+            const response = await fetch(
+                "https://your-classmate-api.execute-api.us-east-1.amazonaws.com/prod/invoice",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        paymentId: lastPaymentId,
+                        amount: parseInt(amountInput.value),
+                        mobileNumber: mobileInput.value
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Invoice API failed");
+            }
+
+            const data = await response.json();
+
+            // Expected response: { invoiceUrl: "https://..." }
+            window.open(data.invoiceUrl, "_blank");
+
+        } catch (error) {
+            message.innerText = "Unable to generate invoice.";
+        }
+    });
+
+</script>
+
+</body>
+</html>
