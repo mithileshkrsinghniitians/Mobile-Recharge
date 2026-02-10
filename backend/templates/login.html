@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login | Mobile Recharge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-body">
+
+<div class="login-container">
+    <h2>Mobile Recharge Admin</h2>
+    <p class="login-subtitle">Salesforce Authentication</p>
+
+    <form id="loginForm">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Salesforce username" required>
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Password + Security Token" required>
+            <small class="field-hint">Enter your Salesforce password followed by your security token</small>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="login-btn">Login</button>
+        </div>
+    </form>
+
+    <p id="error-message" class="error-message"></p>
+</div>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>
