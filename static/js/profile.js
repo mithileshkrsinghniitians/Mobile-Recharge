@@ -18,12 +18,12 @@ const nameRegex = /^[A-Za-z]{1,100}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const mobileRegex = /^\+[0-9]{10,15}$|^[0-9]{10,15}$/;
 
-// Show modal on load
+// Show modal on load:
 document.addEventListener("DOMContentLoaded", () => {
   modal.style.display = "block";
 });
 
-// STEP 1: Check mobile
+// Step 1: Check mobile:
 continueBtn.addEventListener("click", async () => {
   const mobile = profileMobileInput.value.trim();
   errorMsg.textContent = "";
@@ -37,10 +37,10 @@ continueBtn.addEventListener("click", async () => {
   const data = await res.json();
 
   if (data.exists) {
-    // ✅ Existing user → skip profile
+    // Existing user → skip profile:
     modal.style.display = "none";
   } else {
-    // ❗ New user → show profile form
+    // New user → show profile form:
     modalTitle.innerText = "Create Profile";
     mobileStep.style.display = "none";
     profileStep.style.display = "block";
@@ -49,7 +49,7 @@ continueBtn.addEventListener("click", async () => {
   }
 });
 
-// STEP 2: Create profile
+// Step 2: Create profile:
 createBtn.addEventListener("click", async () => {
   const firstName = firstNameInput.value.trim();
   const lastName = lastNameInput.value.trim();
@@ -64,12 +64,12 @@ createBtn.addEventListener("click", async () => {
   }
 
   if (!nameRegex.test(firstName)) {
-    errorMsg.textContent = "Invalid first name";
+    errorMsg.textContent = "Invalid first name - special character not allowed";
     return;
   }
 
   if (!nameRegex.test(lastName)) {
-    errorMsg.textContent = "Invalid last name";
+    errorMsg.textContent = "Invalid last name - special character not allowed";
     return;
   }
 

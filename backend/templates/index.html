@@ -12,7 +12,7 @@
     <div class="modal-content">
         <h2 id="modalTitle">Verify Mobile</h2>
 
-        <!-- STEP 1: MOBILE ONLY -->
+        <!-- Step 1: Input Mobile UI -->
         <div id="mobileStep">
             <label>Mobile Number <span class="required">*</span></label>
             <input
@@ -23,7 +23,7 @@
             />
         </div>
 
-        <!-- STEP 2: PROFILE DETAILS -->
+        <!-- Step 2: Profile Detail -->
         <div id="profileStep" style="display:none;">
             <label>First Name <span class="required">*</span></label>
             <input type="text" id="firstName" placeholder="First Name" />
@@ -57,9 +57,7 @@
     <input type="text" id="amount" placeholder="10 - 100">
     <small id="amountError" class="error"></small>
 
-    <!-- SAME BUTTON ID -->
     <button id="initiateBtn" disabled>Pay</button>
-
     <button id="invoiceBtn" disabled>Download Invoice</button>
 
     <div class="status" id="statusBox">
@@ -67,10 +65,8 @@
     </div>
 </div>
 
-<!-- LOAD app.js FIRST -->
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
-<!-- PAY BUTTON LOGIC (USES VARIABLES FROM app.js) -->
 <script>
     const invoiceBtn = document.getElementById("invoiceBtn");
     let lastPaymentId = null;

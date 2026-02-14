@@ -9,11 +9,11 @@ const amountError = document.getElementById("amountError");
 
 let paymentId = null;
 
-// Regex rules (prefixed to avoid conflict with profile.js)
+// Regex rules (prefixed to avoid conflict with profile.js):
 const rechargeMobileRegex = /^\+[0-9]{6,15}$/;
 const rechargeAmountRegex = /^(10|[1-9][0-9]|100)$/;
 
-// Validate inputs with messages
+// Validate inputs with messages:
 function validateInputs() {
     let mobileValid = false;
     let amountValid = false;
@@ -43,4 +43,3 @@ function validateInputs() {
 
 mobileInput.addEventListener("input", validateInputs);
 amountInput.addEventListener("input", validateInputs);
-
