@@ -8,16 +8,14 @@
 </head>
 <body class="admin-body">
 
-<!-- Header Bar -->
 <div class="admin-header">
     <h1>Admin Dashboard</h1>
     <a href="/logout" class="logout-btn">Logout</a>
 </div>
 
-<!-- Main Content -->
 <div class="admin-content">
     <div class="table-header">
-        <h2>Users Table (DynamoDB)</h2>
+        <h2>Users Table</h2>
         <span class="record-count">{{ users|length }} records</span>
     </div>
 
@@ -42,8 +40,8 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.created_at }}</td>
                     <td class="action-cell">
-                        <button class="btn-edit" onclick="openEditModal({{ user.mobile|tojson }}, {{ user.first_name|tojson }}, {{ user.last_name|tojson }}, {{ user.email|tojson }})">Edit</button>
-                        <button class="btn-delete" onclick="deleteUser({{ user.mobile|tojson }})">Delete</button>
+                        <button class="btn-edit" onclick='openEditModal({{ user.mobile|tojson }}, {{ user.first_name|tojson }}, {{ user.last_name|tojson }}, {{ user.email|tojson }})'>Edit</button>
+                        <button class="btn-delete" onclick='deleteUser({{ user.mobile|tojson }})'>Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -57,7 +55,6 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
 <div id="editModal" class="admin-modal">
     <div class="admin-modal-content">
         <h3>Edit User</h3>
@@ -155,7 +152,7 @@
         }
     }
 
-    // Close modal when clicking outside
+    // Close modal when clicking outside:
     document.getElementById("editModal").addEventListener("click", function (e) {
         if (e.target === this) closeEditModal();
     });
