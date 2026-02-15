@@ -13,3 +13,11 @@ coverage.xml
 bandit-report.json
 htmlcov
 sonar-project.properties
+sonar*
+.dockerignore
+.ebignore
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
