@@ -20,31 +20,33 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Build image
+      # Build and tag image with both commit SHA and latest
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG .
-
-      # Push image
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG
-
-      # Create deployment package for EB
-      - name: Create Dockerrun file
         run: |
-          printf '{
-            "AWSEBDockerrunVersion": 1,
-            "Image": {
-              "Name": "%s/mobile-recharge-app:%s",
-              "Update": "true"
-            },
-            "Ports": [
-              { "ContainerPort": 8080 }
-            ]
-          }' "${{ secrets.DOCKER_USERNAME }}" "$IMAGE_TAG" > Dockerrun.aws.json
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG \
+                        -t ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:latest .
+
+      # Push both tags
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG
+          docker push ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:latest
+
+      # Create docker-compose.yml for EB (AL2023 Docker platform requires compose format)
+      - name: Create docker-compose.yml for EB
+        run: |
+          cat > docker-compose.yml <<EOF
+          version: "3.8"
+          services:
+            app:
+              image: ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG
+              ports:
+                - "80:8080"
+          EOF
 
       # Zip for EB
       - name: Zip bundle
-        run: zip deploy.zip Dockerrun.aws.json
+        run: zip deploy.zip docker-compose.yml
 
       # Deploy to EB
       - name: Deploy to Elastic Beanstalk
