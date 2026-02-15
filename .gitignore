@@ -5,3 +5,11 @@ __pycache__/
 *.pyc
 .pytest_cache/
 tests/__pycache__/
+sonar-scanner-cli-5.0.1.3006-macosx.zip
+sonar-scanner-5.0.1.3006-macosx
+pylint-report.txt
+coverage.xml
+.coverage
+bandit-report.json
+sonar-project.properties
+htmlcov
