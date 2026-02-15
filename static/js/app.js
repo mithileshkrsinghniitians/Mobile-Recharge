@@ -20,22 +20,21 @@ function validateInputs() {
 
     if (!mobileInput.value) {
         mobileError.innerText = "";
-    } else if (!rechargeMobileRegex.test(mobileInput.value)) {
-        mobileError.innerText =
-            "Enter valid mobile number with country code (e.g. +353...)";
-    } else {
+    } else if (rechargeMobileRegex.test(mobileInput.value)) {
         mobileError.innerText = "";
         mobileValid = true;
+    } else {
+        mobileError.innerText =
+            "Enter valid mobile number with country code (e.g. +353...)";
     }
 
     if (!amountInput.value) {
         amountError.innerText = "";
-    } else if (!rechargeAmountRegex.test(amountInput.value)) {
-        amountError.innerText =
-            "Amount must be between 10 and 100";
-    } else {
+    } else if (rechargeAmountRegex.test(amountInput.value)) {
         amountError.innerText = "";
         amountValid = true;
+    } else {
+        amountError.innerText = "Amount must be between 10 and 100";
     }
 
     initiateBtn.disabled = !(mobileValid && amountValid);
