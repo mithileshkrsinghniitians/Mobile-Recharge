@@ -11,5 +11,5 @@ pylint-report.txt
 coverage.xml
 .coverage
 bandit-report.json
-sonar-project.properties
 htmlcov
+sonar-project.properties
