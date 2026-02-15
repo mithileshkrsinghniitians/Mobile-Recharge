@@ -126,6 +126,7 @@
                 errorEl.textContent = data.error || "Update failed.";
             }
         } catch (err) {
+            console.error("Request failed:", err);
             errorEl.textContent = "Network error. Please try again.";
         }
     }
@@ -148,6 +149,7 @@
                 alert(data.error || "Delete failed.");
             }
         } catch (err) {
+            console.error("Delete request failed:", err);
             alert("Network error. Please try again.");
         }
     }

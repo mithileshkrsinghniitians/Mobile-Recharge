@@ -111,6 +111,7 @@
             }
 
         } catch (error) {
+            console.error("Payment processing failed:", error);
             message.innerText =
                 "Unable to process payment. Please try again.";
             initiateBtn.disabled = false;

@@ -26,13 +26,14 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         const data = await response.json();
 
         if (response.ok && data.status === "success") {
-            window.location.href = "/admin/dashboard";
+            globalThis.location.href = "/admin/dashboard";
         } else {
             errorMsg.textContent = data.error || "Login failed. Please try again.";
             loginBtn.disabled = false;
             loginBtn.textContent = "Login";
         }
     } catch (err) {
+        console.error("Login request failed:", err);
         errorMsg.textContent = "Network error. Please try again.";
         loginBtn.disabled = false;
         loginBtn.textContent = "Login";

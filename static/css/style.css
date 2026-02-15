@@ -58,7 +58,7 @@ button {
 
 button:disabled {
     background: #e5e7eb;
-    color: #9ca3af;
+    color: #4b5563;
     cursor: not-allowed;
 }
 
@@ -253,7 +253,7 @@ button:not(:disabled):active {
 }
 
 .logout-btn {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.4);
     color: #ffffff;
     padding: 8px 20px;
     border-radius: 6px;
@@ -362,7 +362,7 @@ button:not(:disabled):active {
 
 .btn-delete {
     background: #fee2e2;
-    color: #dc2626;
+    color: #7f1d1d;
 }
 
 .btn-delete:hover {

@@ -16,7 +16,7 @@ const emailInput = document.getElementById("email");
 
 const nameRegex = /^[A-Za-z]{1,100}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const mobileRegex = /^\+[0-9]{10,15}$|^[0-9]{10,15}$/;
+const mobileRegex = /^\+\d{10,15}$|^\d{10,15}$/;
 
 // Show modal on load:
 document.addEventListener("DOMContentLoaded", () => {
