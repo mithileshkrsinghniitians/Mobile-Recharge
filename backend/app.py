@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), 'templates', '.env'))
 
 # DynamoDB Resources:
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+region = os.environ.get('AWS_REGION', 'us-east-1')
+dynamodb = boto3.resource('dynamodb', region_name=region)
 users_table = dynamodb.Table('Users')
 
 # Initialize Flask App:
@@ -27,13 +28,13 @@ SF_AUTH_URL = os.environ.get('SALESFORCE_AUTH_URL', 'https://login.salesforce.co
 
 
 # Index route:
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
 
 
 # Check Mobile Route Validates Mobile Number In DB:
-@app.route("/check-mobile")
+@app.route("/check-mobile", methods=["GET"])
 def check_mobile():
     mobile = request.args.get("mobile")
 
@@ -122,7 +123,7 @@ def login():
 
 
 # Admin Route show login page, or redirect to dashboard if already authenticated:
-@app.route("/admin")
+@app.route("/admin", methods=["GET"])
 def admin_login_page():
     if session.get('sf_access_token'):
         return redirect(url_for('admin_dashboard'))
@@ -130,7 +131,7 @@ def admin_login_page():
 
 
 # Admin Dashboard protect admin dashboard & shows all Users from DynamoDB:
-@app.route("/admin/dashboard")
+@app.route("/admin/dashboard", methods=["GET"])
 def admin_dashboard():
     if not session.get('sf_access_token'):
         return redirect(url_for('admin_login_page'))
@@ -203,7 +204,7 @@ def admin_delete():
 
 
 # Logout Route clear session and redirect to admin login:
-@app.route("/logout")
+@app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
     return redirect(url_for('admin_login_page'))
