@@ -1,24 +1,24 @@
-# Use official Python image
+# Use official Python image:
 FROM python:3.11-slim
 
-# Set working directory inside container
+# Set working directory inside container:
 WORKDIR /app
 
-# Copy backend requirements
+# Copy backend requirements:
 COPY backend/requirements.txt .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install gunicorn
+# Install dependencies:
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn
 
-# Copy backend code
+# Copy backend code:
 COPY backend/ ./backend
 
-# Copy static folder (IMPORTANT ⭐⭐⭐⭐⭐)
+# Copy static folder:
 COPY static/ ./static
 
-# Expose port
+# Expose port:
 EXPOSE 8080
 
-# Start application
+# Start application:
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "backend", "app:app"]
