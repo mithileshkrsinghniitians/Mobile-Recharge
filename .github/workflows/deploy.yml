@@ -28,18 +28,22 @@ jobs:
 
       # Push both tags
       - name: Push Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG
-          docker push ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:latest
+          docker push ${DOCKER_USERNAME}/mobile-recharge-app:${IMAGE_TAG}
+          docker push ${DOCKER_USERNAME}/mobile-recharge-app:latest
 
       # Create docker-compose.yml for EB (AL2023 Docker platform requires compose format)
       - name: Create docker-compose.yml for EB
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           cat > docker-compose.yml <<EOF
           version: "3.8"
           services:
             app:
-              image: ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:$IMAGE_TAG
+              image: ${DOCKER_USERNAME}/mobile-recharge-app:${IMAGE_TAG}
               ports:
                 - "80:8080"
               environment:
