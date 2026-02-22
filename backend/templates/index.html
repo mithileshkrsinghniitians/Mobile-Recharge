@@ -81,7 +81,7 @@
 
         const payload = {
             mobileNumber: mobileInput.value,
-            amount: Number.parseInt(amountInput.value, 10)
+            amount: parseFloat(amountInput.value)
         };
 
         try {
@@ -126,8 +126,8 @@
 
         try {
             const response = await fetch(
-                "https://eoy6ga7rqpf3edl.m.pipedream.net",
-<!--                "https://xhdfl3t8b5.execute-api.us-east-1.amazonaws.com/prod/invoice/pdf",-->
+<!--                "https://eoy6ga7rqpf3edl.m.pipedream.net",-->
+                "https://di8irmc06g.execute-api.us-east-1.amazonaws.com/invoice",
                 {
                     method: "POST",
                     headers: {
@@ -135,7 +135,7 @@
                     },
                     body: JSON.stringify({
                         paymentId: lastPaymentId,
-                        amount: Number.parseInt(amountInput.value, 10),
+                        amount: parseFloat(amountInput.value),
                         mobileNumber: mobileInput.value
                     })
                 }
@@ -149,9 +149,10 @@
             console.log("API Response:", data); // Debug log
 
             // Check if invoice generation was successful
-            if (data.success && data.invoiceUrl) {
+<!--            if (data.success && data.invoiceUrl) {-->
+                if (data.pdf_url) {
                 // Open PDF in new tab
-                window.open(data.invoiceUrl, "_blank");
+                window.open(data.pdf_url, "_blank");
                 message.innerText = "Invoice generated successfully!";
                 message.style.color = "#4CAF50"; // Green for success
             } else {
