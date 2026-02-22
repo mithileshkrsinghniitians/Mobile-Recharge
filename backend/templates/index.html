@@ -81,7 +81,7 @@
 
         const payload = {
             mobileNumber: mobileInput.value,
-            amount: parseFloat(amountInput.value)
+            amount: parseFloat(amountInput.value, 10)
         };
 
         try {
@@ -135,7 +135,7 @@
                     },
                     body: JSON.stringify({
                         paymentId: lastPaymentId,
-                        amount: parseFloat(amountInput.value),
+                        amount: parseFloat(amountInput.value, 10),
                         mobileNumber: mobileInput.value
                     })
                 }
