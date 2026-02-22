@@ -11,7 +11,7 @@ let paymentId = null;
 
 // Regex rules (prefixed to avoid conflict with profile.js):
 const rechargeMobileRegex = /^\+\d{6,15}$/;
-const rechargeAmountRegex = /^(10|[1-9]\d|100)$/;
+const rechargeAmountRegex = /^([1-9]\d(\.\d{1,2})?|100(\.0{1,2})?)$/;
 
 // Validate inputs with messages:
 function validateInputs() {
