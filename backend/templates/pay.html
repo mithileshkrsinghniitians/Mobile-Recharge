@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Payment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+{% if error %}
+
+<div class="container">
+    <h2>Payment Error</h2>
+    <p class="error-message">{{ error }}</p>
+</div>
+
+{% else %}
+
+<div class="container">
+    <h2>Secure Payment</h2>
+
+    <div class="pay-summary">
+        <div class="pay-row">
+            <span>Mobile</span>
+            <span>{{ mobile }}</span>
+        </div>
+        <div class="pay-row">
+            <span>Amount</span>
+            <span>€{{ amount }}</span>
+        </div>
+    </div>
+
+    <label>Card Details</label>
+    <div id="cardElement" class="stripe-card-input"></div>
+    <small id="cardErrors" class="error"></small>
+
+    <button id="confirmPayBtn" type="button" disabled>Confirm Payment</button>
+
+    <div class="status" id="statusBox">
+        <p id="message"></p>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = "https://3nsivye9u5.execute-api.us-east-1.amazonaws.com/prod";
+    const REDIRECT_URL = {{ redirect_url | tojson }};
+    const MOBILE = {{ mobile | tojson }};
+    const AMOUNT = parseFloat({{ amount | tojson }});
+
+    const confirmPayBtn = document.getElementById("confirmPayBtn");
+    const statusBox = document.getElementById("statusBox");
+    const message = document.getElementById("message");
+
+    const stripe = Stripe({{ stripe_pk | tojson }});
+    const elements = stripe.elements();
+    const cardElement = elements.create("card", {
+        style: {
+            base: {
+                fontSize: "14px",
+                color: "#1f2937",
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+                "::placeholder": { color: "#9ca3af" }
+            },
+            invalid: { color: "#dc2626" }
+        }
+    });
+
+    cardElement.mount("#cardElement");
+
+    cardElement.on("change", function (event) {
+        confirmPayBtn.disabled = !event.complete;
+        document.getElementById("cardErrors").textContent =
+            event.error ? event.error.message : "";
+    });
+
+    confirmPayBtn.addEventListener("click", async () => {
+        confirmPayBtn.disabled = true;
+        confirmPayBtn.textContent = "Processing...";
+        document.getElementById("cardErrors").textContent = "";
+        statusBox.classList.add("show");
+        message.innerText = "Creating payment...";
+        message.style.color = "#1f2937";
+
+        // Step 1: Create PaymentIntent:
+        let clientSecret, paymentId;
+        try {
+            const intentResponse = await fetch(`${API_BASE_URL}/payments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mobileNumber: MOBILE, amount: AMOUNT })
+            });
+            if (!intentResponse.ok) throw new Error("Failed to create payment intent");
+            const intentData = await intentResponse.json();
+            paymentId = intentData.paymentId;
+            clientSecret = intentData.clientSecret;
+        } catch (err) {
+            message.innerText = "Unable to prepare payment. Please try again.";
+            message.style.color = "#dc2626";
+            confirmPayBtn.textContent = "Confirm Payment";
+            confirmPayBtn.disabled = false;
+            return;
+        }
+
+        // Step 2: Confirm with Stripe:
+        message.innerText = "Confirming with Stripe...";
+        const { error, paymentIntent } = await stripe.confirmCardPayment(
+            clientSecret,
+            { payment_method: { card: cardElement } }
+        );
+
+        if (error) {
+            document.getElementById("cardErrors").textContent = error.message;
+            message.innerText = "Payment failed. Please check your card details.";
+            message.style.color = "#dc2626";
+            confirmPayBtn.textContent = "Confirm Payment";
+            confirmPayBtn.disabled = false;
+            return;
+        }
+
+        // Step 3: Finalise on backend:
+        message.innerText = "Finalising payment...";
+        try {
+            const finaliseResponse = await fetch(`${API_BASE_URL}/payments/finalize`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    paymentId: paymentId,
+                    stripePaymentIntentId: paymentIntent.id,
+                    amount: AMOUNT,
+                    mobileNumber: MOBILE
+                })
+            });
+            if (!finaliseResponse.ok) throw new Error("Finalise failed");
+            const finalData = await finaliseResponse.json();
+
+            message.innerText = "Payment successful! Redirecting...";
+            message.style.color = "#065f46";
+
+            // Redirect back to merchant with result:
+            const sep = REDIRECT_URL.includes("?") ? "&" : "?";
+            window.location.href = REDIRECT_URL + sep +
+                "paymentId=" + finalData.paymentId +
+                "&status=" + finalData.status;
+
+        } catch (err) {
+            message.innerText = "Payment was taken but we could not confirm it. Please contact support.";
+            message.style.color = "#dc2626";
+            confirmPayBtn.textContent = "Confirm Payment";
+            confirmPayBtn.disabled = false;
+        }
+    });
+</script>
+
+{% endif %}
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 # Import Libraries:
 import os
+import re
 from datetime import datetime, timezone
 import boto3
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
@@ -25,6 +26,9 @@ REQUEST_TIMEOUT = 10  # seconds
 SF_CLIENT_ID = os.environ.get('SALESFORCE_CLIENT_ID')
 SF_CLIENT_SECRET = os.environ.get('SALESFORCE_CLIENT_SECRET')
 SF_AUTH_URL = os.environ.get('SALESFORCE_AUTH_URL', 'https://login.salesforce.com/services/oauth2/token')
+
+# Stripe publishable key used only on frontend:
+STRIPE_PK = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 
 
 # Index route:
@@ -150,7 +154,7 @@ def admin_dashboard():
     return render_template("admin.html", users=users)
 
 
-# Admin Update Route update a user record in DynamoDB (first_name, last_name, email):
+# Admin Update Route update a user record in DynamoDB:
 @app.route("/admin/update", methods=["POST"])
 def admin_update():
     if not session.get('sf_access_token'):
@@ -203,6 +207,39 @@ def admin_delete():
         return jsonify({"error": "Failed to delete user"}), 500
 
 
+# Pay Route accepts mobile number, amount, redirect as query params:
+@app.route("/pay", methods=["GET"])
+def pay():
+    mobile = request.args.get('mobile', '').strip()
+    amount_str = request.args.get('amount', '').strip()
+    redirect_url = request.args.get('redirect', '').strip()
+
+    if mobile and not mobile.startswith('+'):
+        mobile = '+' + mobile
+
+    error = None
+
+    if not re.match(r'^\+\d{6,15}$', mobile):
+        error = "Invalid mobile number provided by merchant."
+    else:
+        try:
+            amount_val = float(amount_str)
+            if not (10 <= amount_val <= 100):
+                error = "Amount must be between 10 and 100."
+        except (ValueError, TypeError):
+            error = "Invalid amount provided by merchant."
+
+    if not error and not redirect_url.startswith(('http://', 'https://')):
+        error = "Invalid redirect URL provided by merchant."
+
+    return render_template('pay.html',
+                           mobile=mobile,
+                           amount=amount_str,
+                           redirect_url=redirect_url,
+                           stripe_pk=STRIPE_PK,
+                           error=error)
+
+
 # Logout Route clear session and redirect to admin login:
 @app.route("/logout", methods=["GET"])
 def logout():
@@ -212,4 +249,4 @@ def logout():
 
 # App Entry Point:
 if __name__ == "__main__":
-    app.run(debug=os.environ.get('FLASK_DEBUG', 'true').lower() == 'true')
+    app.run(debug=os.environ.get('FLASK_DEBUG', 'false').lower() == 'true')
