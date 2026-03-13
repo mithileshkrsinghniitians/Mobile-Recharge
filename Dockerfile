@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy backend requirements:
 COPY backend/requirements.txt .
 
+# Upgrade pip, setuptools and wheel:
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Install dependencies:
 RUN pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir gunicorn
