@@ -1,6 +1,5 @@
 const mobileInput = document.getElementById("mobileNumber");
 const amountInput = document.getElementById("amount");
-const initiateBtn = document.getElementById("initiateBtn");
 const message = document.getElementById("message");
 const statusBox = document.getElementById("statusBox");
 
@@ -9,7 +8,6 @@ const amountError = document.getElementById("amountError");
 
 let paymentId = null;
 
-// Regex rules (prefixed to avoid conflict with profile.js):
 const rechargeMobileRegex = /^\+\d{6,15}$/;
 const rechargeAmountRegex = /^([1-9]\d(\.\d{1,2})?|100(\.0{1,2})?)$/;
 
@@ -37,7 +35,13 @@ function validateInputs() {
         amountError.innerText = "Amount must be between 10 and 100";
     }
 
-    initiateBtn.disabled = !(mobileValid && amountValid);
+    const cardSection = document.getElementById("cardSection");
+    if (mobileValid && amountValid) {
+        cardSection.style.display = "block";
+    } else {
+        cardSection.style.display = "none";
+        if (typeof resetCaptchaState === "function") resetCaptchaState();
+    }
 }
 
 mobileInput.addEventListener("input", validateInputs);

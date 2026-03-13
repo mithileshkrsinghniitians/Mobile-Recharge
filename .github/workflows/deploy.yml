@@ -6,8 +6,43 @@ on:
       - main
 
 jobs:
+  # ─── STAGE 1: Code Quality Gate ───────────────────────────────────────────
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # SonarCloud needs full git history
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt bandit pytest pytest-cov pylint
+
+      - name: Run Bandit (static security scan)
+        run: bandit -r backend/ -f json -o bandit-report.json --exit-zero
+
+      - name: Run pytest with coverage
+        run: pytest tests/ --cov=backend --cov-report=xml:coverage.xml --exit-zero
+
+      - name: Run pylint
+        run: pylint backend/ --output-format=text > pylint-report.txt || true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ─── STAGE 2 & 3: Image Security Gate + Deploy ────────────────────────────
   deploy:
     runs-on: ubuntu-latest
+    needs: code-quality  # only runs if code-quality job passes
 
     steps:
       - name: Checkout code
@@ -16,7 +51,7 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
 
-      # Docker login
+      # Docker login:
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -24,7 +59,7 @@ jobs:
         run: |
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
-      # Build and tag image with both commit SHA and latest
+      # Build and tag image with both commit SHA and latest:
       - name: Build Docker image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -33,7 +68,17 @@ jobs:
             -t ${DOCKER_USERNAME}/mobile-recharge-app:${IMAGE_TAG} \
             -t ${DOCKER_USERNAME}/mobile-recharge-app:latest .
 
-      # Push both tags
+      # Trivy image security scan — blocks push if HIGH/CRITICAL CVEs found:
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      # Push both tags (only reached if Trivy passes):
       - name: Push Docker image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -41,7 +86,7 @@ jobs:
           docker push ${DOCKER_USERNAME}/mobile-recharge-app:${IMAGE_TAG}
           docker push ${DOCKER_USERNAME}/mobile-recharge-app:latest
 
-      # Create docker-compose.yml for EB (AL2023 Docker platform requires compose format)
+      # Create docker-compose.yml for EB:
       - name: Create docker-compose.yml for EB
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -56,17 +101,19 @@ jobs:
               environment:
                 AWS_ACCESS_KEY_ID: \${AWS_ACCESS_KEY_ID}
                 AWS_SECRET_ACCESS_KEY: \${AWS_SECRET_ACCESS_KEY}
-                AWS_DEFAULT_REGION: \${AWS_DEFAULT_REGION}
+                AWS_REGION: \${AWS_REGION}
+                FLASK_SECRET_KEY: \${FLASK_SECRET_KEY}
                 SALESFORCE_CLIENT_ID: \${SALESFORCE_CLIENT_ID}
                 SALESFORCE_CLIENT_SECRET: \${SALESFORCE_CLIENT_SECRET}
                 SALESFORCE_AUTH_URL: \${SALESFORCE_AUTH_URL}
+                STRIPE_PUBLISHABLE_KEY: \${STRIPE_PUBLISHABLE_KEY}
           EOF
 
-      # Zip for EB
+      # Zip for EB:
       - name: Zip bundle
         run: zip deploy.zip docker-compose.yml
 
-      # Deploy to EB
+      # Deploy to EB:
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@c165ccc34505f88f983d5cb58bfc5acbe7ffd1af
         with:

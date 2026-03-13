@@ -17,7 +17,15 @@ sonar*
 .dockerignore
 .ebignore
 
-# Elastic Beanstalk Files
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.idea/easycode/
+.idea/easycode.ignore
+
+# Elastic Beanstalk Files:
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml

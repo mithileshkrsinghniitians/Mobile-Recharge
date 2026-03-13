@@ -21,6 +21,7 @@ const mobileRegex = /^\+\d{10,15}$|^\d{10,15}$/;
 // Show modal on load:
 document.addEventListener("DOMContentLoaded", () => {
   modal.style.display = "block";
+  document.body.classList.add("modal-open");
 });
 
 // Step 1: Check mobile:
@@ -39,6 +40,7 @@ continueBtn.addEventListener("click", async () => {
   if (data.exists) {
     // Existing user → skip profile:
     modal.style.display = "none";
+    document.body.classList.remove("modal-open");
   } else {
     // New user → show profile form:
     modalTitle.innerText = "Create Profile";
@@ -93,6 +95,7 @@ createBtn.addEventListener("click", async () => {
 
   if (data.status === "success") {
     modal.style.display = "none";
+    document.body.classList.remove("modal-open");
   } else {
     errorMsg.textContent = "Profile creation failed";
   }

@@ -1,6 +1,5 @@
-/* =====================================================
-   GLOBAL RESET & BASE STYLES
-   ===================================================== */
+/*    GLOBAL RESET & BASE STYLES    */
+
 * {
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -94,9 +93,7 @@ button:not(:disabled):active {
     margin-left: 4px;
 }
 
-/* =====================================================
-   RECHARGE PAGE (index.html)
-   ===================================================== */
+/*    RECHARGE PAGE (index.html)    */
 .container {
     max-width: 400px;
     margin: 40px auto;
@@ -120,13 +117,106 @@ button:not(:disabled):active {
     display: block;
 }
 
-/* Profile Modal (index.html) */
+/*    Profile Modal (index.html)    */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 999;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+body.modal-open .container {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+}
+
+/*    Captcha verification section    */
+#captchaSection {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.captcha-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #f0f4ff;
+    border: 1px solid #c7d7fd;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.captcha-header-icon {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+.captcha-title {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.captcha-subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: #3b5bdb;
+}
+
+.captcha-image-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.captcha-img {
+    flex: 1;
+    height: 64px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    object-fit: contain;
+    background: #f9fafb;
+}
+
+.captcha-refresh-btn {
+    width: auto;
+    margin-top: 0;
+    padding: 0 14px;
+    height: 40px;
+    font-size: 20px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+.captcha-refresh-btn:not(:disabled):hover {
+    background: #e5e7eb;
+}
+
+#captchaInput {
+    margin-top: 0;
+    letter-spacing: 4px;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+#captchaMsg {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+#confirmPayBtn {
+    margin-top: 24px;
 }
 
 .modal-content {
@@ -153,9 +243,7 @@ button:not(:disabled):active {
     cursor: pointer;
 }
 
-/* =====================================================
-   LOGIN PAGE
-   ===================================================== */
+/*    LOGIN PAGE    */
 .login-body {
     background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
     min-height: 100vh;
@@ -227,9 +315,7 @@ button:not(:disabled):active {
     cursor: not-allowed;
 }
 
-/* =====================================================
-   ADMIN DASHBOARD
-   ===================================================== */
+/*    ADMIN DASHBOARD    */
 .admin-body {
     background: #f0f2f5;
     padding: 0;
@@ -369,9 +455,7 @@ button:not(:disabled):active {
     background: #fecaca;
 }
 
-/* =====================================================
-   ADMIN EDIT MODAL
-   ===================================================== */
+/*    ADMIN EDIT MODAL    */
 .admin-modal {
     display: none;
     position: fixed;
@@ -441,4 +525,48 @@ button:not(:disabled):active {
 
 .btn-cancel:hover {
     background: #e5e7eb;
+}
+
+/*    STRIPE CARD ELEMENT    */
+.stripe-card-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    transition: border-color 0.2s;
+    margin-bottom: 4px;
+}
+
+.stripe-card-input.StripeElement--focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.stripe-card-input.StripeElement--invalid {
+    border-color: #dc2626;
+}
+
+/*    HOSTED PAY PAGE — PAYMENT SUMMARY    */
+.pay-summary {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.pay-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 14px;
+    color: #374151;
+}
+
+.pay-row span:last-child {
+    font-weight: 600;
+    color: #1f2937;
 }
