@@ -1,5 +1,5 @@
 # Import Libraries:
-# pylint: disable=missing-module-docstring
+# pylint: disable=missing-module-docstring, line-too-long, missing-function-docstring
 
 import os
 import re
