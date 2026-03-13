@@ -327,3 +327,4 @@ def test_delete_db_error(auth_client):
     assert response.status_code == 500
     data = json.loads(response.data)
     assert "error" in data
+
