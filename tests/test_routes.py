@@ -239,3 +239,91 @@ def test_logout_clears_session(auth_client):
 
     response = auth_client.get("/admin/dashboard")
     assert response.status_code == 302
+
+
+# PAY ROUTE:
+# =========
+def test_pay_valid_request(client):
+    response = client.get("/pay?mobile=%2B353871234567&amount=20&redirect=https://example.com")
+    assert response.status_code == 200
+    assert b"Secure Payment" in response.data
+
+
+def test_pay_mobile_without_plus_prefix(client):
+    response = client.get("/pay?mobile=353871234567&amount=20&redirect=https://example.com")
+    assert response.status_code == 200
+    assert b"Secure Payment" in response.data
+
+
+def test_pay_invalid_mobile(client):
+    response = client.get("/pay?mobile=abc&amount=20&redirect=https://example.com")
+    assert response.status_code == 200
+    assert b"Invalid mobile number provided by merchant." in response.data
+
+
+def test_pay_amount_out_of_range(client):
+    response = client.get("/pay?mobile=%2B353871234567&amount=5&redirect=https://example.com")
+    assert response.status_code == 200
+    assert b"Amount must be between 10 and 100." in response.data
+
+
+def test_pay_invalid_amount_format(client):
+    response = client.get("/pay?mobile=%2B353871234567&amount=abc&redirect=https://example.com")
+    assert response.status_code == 200
+    assert b"Invalid amount provided by merchant." in response.data
+
+
+def test_pay_invalid_redirect_url(client):
+    response = client.get("/pay?mobile=%2B353871234567&amount=20&redirect=ftp://example.com")
+    assert response.status_code == 200
+    assert b"Invalid redirect URL provided by merchant." in response.data
+
+
+# EXCEPTION PATHS:
+# ===============
+def test_create_profile_db_error(client):
+    from tests.conftest import mock_table
+    mock_table.put_item.side_effect = Exception("DynamoDB error")
+    response = client.post("/create-profile", json={
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@test.com",
+        "mobile": "+353871234567"
+    })
+    mock_table.put_item.side_effect = None
+    assert response.status_code == 500
+    data = json.loads(response.data)
+    assert "error" in data
+
+
+def test_dashboard_db_error(auth_client):
+    from tests.conftest import mock_table
+    mock_table.scan.side_effect = Exception("DynamoDB scan error")
+    response = auth_client.get("/admin/dashboard")
+    mock_table.scan.side_effect = None
+    assert response.status_code == 200
+
+
+def test_update_db_error(auth_client):
+    from tests.conftest import mock_table
+    mock_table.update_item.side_effect = Exception("DynamoDB error")
+    response = auth_client.post("/admin/update", json={
+        "mobile": "353871234567",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "email": "jane@test.com"
+    })
+    mock_table.update_item.side_effect = None
+    assert response.status_code == 500
+    data = json.loads(response.data)
+    assert "error" in data
+
+
+def test_delete_db_error(auth_client):
+    from tests.conftest import mock_table
+    mock_table.delete_item.side_effect = Exception("DynamoDB error")
+    response = auth_client.post("/admin/delete", json={"mobile": "353871234567"})
+    mock_table.delete_item.side_effect = None
+    assert response.status_code == 500
+    data = json.loads(response.data)
+    assert "error" in data
