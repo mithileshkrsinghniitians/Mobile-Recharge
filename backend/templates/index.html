@@ -326,7 +326,7 @@
             captchaToken = data.captcha_token || "";
             img.src = data.captcha_image_base64 || "";
             msg.textContent = "";
-        } catch (e) {
+        } catch {
             msg.textContent = "Could not load captcha. Click to retry.";
             msg.style.color = "#dc2626";
         }
@@ -358,7 +358,7 @@
                 captchaVerified = false;
                 loadCaptcha();
             }
-        } catch (e) {
+        } catch {
             msg.style.color = "#dc2626";
             msg.textContent = "Verification error. Click to reload captcha.";
         }
