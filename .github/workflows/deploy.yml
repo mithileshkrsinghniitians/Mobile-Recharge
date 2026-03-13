@@ -28,7 +28,7 @@ jobs:
         run: bandit -r backend/ -f json -o bandit-report.json --exit-zero
 
       - name: Run pytest with coverage
-        run: pytest tests/ --cov=backend --cov-report=xml:coverage.xml --exit-zero
+        run: pytest tests/ --cov=backend --cov-report=xml:coverage.xml
 
       - name: Run pylint
         run: pylint backend/ --output-format=text > pylint-report.txt || true
