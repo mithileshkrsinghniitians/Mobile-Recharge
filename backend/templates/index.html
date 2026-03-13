@@ -60,9 +60,10 @@
 
     <!-- Stripe Card Section (shown automatically when inputs are valid) -->
     <div id="cardSection" style="display:none; margin-top:20px;">
-        <label>Card Details</label>
+        <label for="cardElement-input">Card Details</label>
         <div id="cardElement" class="stripe-card-input"></div>
         <small id="cardErrors" class="error"></small>
+        <input type="hidden" id="cardElement-input" />
 
         <!-- Captcha verification section — shown when card details are complete -->
         <div id="captchaSection" style="display:none;">

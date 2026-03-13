@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r backend/requirements.txt bandit pytest pytest-cov pylint
+        run: pip install -r requirement.txt bandit pytest pytest-cov pylint
 
       - name: Run Bandit (static security scan)
         run: bandit -r backend/ -f json -o bandit-report.json --exit-zero
@@ -34,7 +34,7 @@ jobs:
         run: pylint backend/ --output-format=text > pylint-report.txt || true
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df9ba3c # v3.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -70,7 +70,7 @@ jobs:
 
       # Trivy image security scan — blocks push if HIGH/CRITICAL CVEs found:
       - name: Trivy image scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/mobile-recharge-app:${{ github.sha }}
           format: table
@@ -101,12 +101,10 @@ jobs:
               environment:
                 AWS_ACCESS_KEY_ID: \${AWS_ACCESS_KEY_ID}
                 AWS_SECRET_ACCESS_KEY: \${AWS_SECRET_ACCESS_KEY}
-                AWS_REGION: \${AWS_REGION}
-                FLASK_SECRET_KEY: \${FLASK_SECRET_KEY}
+                AWS_DEFAULT_REGION: \${AWS_DEFAULT_REGION}
                 SALESFORCE_CLIENT_ID: \${SALESFORCE_CLIENT_ID}
                 SALESFORCE_CLIENT_SECRET: \${SALESFORCE_CLIENT_SECRET}
                 SALESFORCE_AUTH_URL: \${SALESFORCE_AUTH_URL}
-                STRIPE_PUBLISHABLE_KEY: \${STRIPE_PUBLISHABLE_KEY}
           EOF
 
       # Zip for EB:
