@@ -1,4 +1,6 @@
 # Import Libraries:
+# pylint: disable=missing-module-docstring
+
 import os
 import re
 from datetime import datetime, timezone
